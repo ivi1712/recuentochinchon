@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Recuento Chinchón</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      background: #2d89ef;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1b5fa7;
+    }
+
+    .danger {
+      background: #d9534f;
+    }
+
+    .danger:hover {
+      background: #a94442;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background: #333;
+      color: white;
+    }
+
+    .winner {
+      background: #d4edda;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Recuento Chinchón</h1>
+
+  <div class="card">
+    <h3>Añadir jugador</h3>
+    <input type="text" id="nombreJugador" placeholder="Nombre del jugador">
+    <button onclick="añadirJugador()">Añadir jugador</button>
+  </div>
+
+  <div class="card">
+    <h3>Añadir ronda</h3>
+    <div id="inputsRonda"></div>
+    <button onclick="añadirRonda()">Guardar ronda</button>
+  </div>
+
+  <div class="card">
+    <h3>Clasificación</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Jugador</th>
+          <th>Puntos</th>
+        </tr>
+      </thead>
+      <tbody id="tablaJugadores"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <button class="danger" onclick="reiniciar()">Reiniciar partida</button>
+  </div>
+
+  <script>
+    let jugadores = JSON.parse(localStorage.getItem("jugadoresChinchon")) || [];
+
+    function guardar() {
+      localStorage.setItem("jugadoresChinchon", JSON.stringify(jugadores));
+    }
+
+    function añadirJugador() {
+      const nombre = document.getElementById("nombreJugador").value.trim();
+
+      if (nombre === "") {
+        alert("Escribe un nombre");
+        return;
+      }
+
+      jugadores.push({
+        nombre: nombre,
+        puntos: 0
+      });
+
+      document.getElementById("nombreJugador").value = "";
+      guardar();
+      pintar();
+    }
+
+    function pintar() {
+      const tabla = document.getElementById("tablaJugadores");
+      const inputs = document.getElementById("inputsRonda");
+
+      tabla.innerHTML = "";
+      inputs.innerHTML = "";
+
+      jugadores.sort((a, b) => a.puntos - b.puntos);
+
+      jugadores.forEach((jugador, index) => {
+        const fila = document.createElement("tr");
+
+        if (index === 0) {
+          fila.classList.add("winner");
+        }
+
+        fila.innerHTML = `
+          <td>${jugador.nombre}</td>
+          <td>${jugador.puntos}</td>
+        `;
+
+        tabla.appendChild(fila);
+
+        inputs.innerHTML += `
+          <label>${jugador.nombre}</label>
+          <input type="number" id="puntos-${index}" placeholder="Puntos de esta ronda">
+        `;
+      });
+    }
+
+    function añadirRonda() {
+      jugadores.forEach((jugador, index) => {
+        const puntos = parseInt(document.getElementById(`puntos-${index}`).value) || 0;
+        jugador.puntos += puntos;
+      });
+
+      guardar();
+      pintar();
+    }
+
+    function reiniciar() {
+      if (confirm("¿Seguro que quieres reiniciar la partida?")) {
+        jugadores = [];
+        guardar();
+        pintar();
+      }
+    }
+
+    pintar();
+  </script>
+
+</body>
+</html>
