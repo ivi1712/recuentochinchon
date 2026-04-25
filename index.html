@@ -2,40 +2,51 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chinchón</title>
 
 <style>
 body {
-  font-family: -apple-system, BlinkMacSystemFont;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   margin: 0;
   background: #f2f2f2;
+  color: #222;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 header {
   background: #2d89ef;
   color: white;
   text-align: center;
-  padding: 15px;
-  font-size: 22px;
-  font-weight: bold;
+  padding: 14px 12px;
+  font-size: clamp(20px, 6vw, 26px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
 }
 
 .container {
-  padding: 15px;
+  width: min(100%, 560px);
+  margin: 0 auto;
+  padding: 12px;
 }
 
 .card {
   background: white;
-  border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 15px;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
 input {
   width: 100%;
-  padding: 14px;
-  font-size: 18px;
+  min-height: 46px;
+  padding: 12px;
+  font-size: 16px;
   margin-top: 8px;
   border-radius: 8px;
   border: 1px solid #ccc;
@@ -43,40 +54,93 @@ input {
 
 button {
   width: 100%;
-  padding: 14px;
+  min-height: 46px;
+  padding: 12px;
   margin-top: 10px;
-  font-size: 18px;
+  font-size: 16px;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #2d89ef;
   color: white;
+  cursor: pointer;
 }
 
 button:active {
   transform: scale(0.98);
 }
 
+button:hover {
+  background: #1b5fa7;
+}
+
 .danger {
   background: #e74c3c;
 }
 
-.player {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px;
-  border-bottom: 1px solid #eee;
-  font-size: 18px;
+.danger:hover {
+  background: #a94442;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 260px;
+  border-collapse: collapse;
+  background: white;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 11px 8px;
+  text-align: center;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+th {
+  background: #333;
+  color: white;
+  font-weight: bold;
 }
 
 .winner {
   background: #d4edda;
-  border-radius: 8px;
+  font-weight: bold;
 }
 
 label {
   margin-top: 10px;
   display: block;
   font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 360px) {
+  .container {
+    padding: 8px;
+  }
+
+  .card {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  input,
+  button,
+  th,
+  td {
+    font-size: 15px;
+  }
+
+  th,
+  td {
+    padding: 9px 6px;
+  }
 }
 </style>
 </head>
@@ -98,7 +162,17 @@ label {
 </div>
 
 <div class="card">
-  <div id="ranking"></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Jugador</th>
+          <th>Puntos</th>
+        </tr>
+      </thead>
+      <tbody id="ranking"></tbody>
+    </table>
+  </div>
 </div>
 
 <div class="card">
@@ -134,10 +208,10 @@ function render() {
   players.sort((a,b)=>a.points-b.points);
 
   players.forEach((p,i)=>{
-    const div = document.createElement("div");
-    div.className = "player" + (i===0 ? " winner":"");
-    div.innerHTML = `<span>${p.name}</span><span>${p.points}</span>`;
-    ranking.appendChild(div);
+    const row = document.createElement("tr");
+    if (i === 0) row.classList.add("winner");
+    row.innerHTML = `<td>${p.name}</td><td>${p.points}</td>`;
+    ranking.appendChild(row);
 
     roundInputs.innerHTML += `
       <label>${p.name}</label>
